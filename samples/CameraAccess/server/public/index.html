@@ -270,7 +270,7 @@
       pc.ontrack = (e) => {
         if (e.streams && e.streams[0]) {
           remoteStream = e.streams[0];
-          showVideoLayout();
+          // Don't show PiP yet -- wait for ICE "connected" to ensure media is flowing
         }
       };
 
@@ -296,6 +296,7 @@
           case 'completed':
             setStatus('Live', 'connected');
             showControls(true);
+            if (remoteStream) showVideoLayout();
             break;
           case 'disconnected':
             setStatus('Reconnecting...', 'waiting');
