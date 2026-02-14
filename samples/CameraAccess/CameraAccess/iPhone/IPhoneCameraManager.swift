@@ -54,13 +54,6 @@ class IPhoneCameraManager: NSObject {
       captureSession.addOutput(videoOutput)
     }
 
-    // Fix orientation to portrait
-    if let connection = videoOutput.connection(with: .video) {
-      if connection.isVideoRotationAngleSupported(90) {
-        connection.videoRotationAngle = 90
-      }
-    }
-
     captureSession.commitConfiguration()
     NSLog("[iPhoneCamera] Session configured")
   }
