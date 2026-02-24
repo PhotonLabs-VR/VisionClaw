@@ -6,7 +6,7 @@ workflows:
       xcode: latest
       ios_signing:
         distribution_type: development
-        bundle_identifier: com.xiaoanliu.VisionClaw
+        bundle_identifier: com.photonlabs.VisionClaw
       vars:
         XCODE_PROJECT: "samples/CameraAccess/CameraAccess.xcodeproj"
         XCODE_SCHEME: "CameraAccess"
