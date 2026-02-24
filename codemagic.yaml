@@ -1,4 +1,3 @@
-cat > codemagic.yaml << 'YAML'
 workflows:
   ios-development:
     name: VisionClaw iOS (Development)
