@@ -1,31 +1,31 @@
-name: Build VisionClaw
-
+cat > .github/workflows/build.yml << 'YAML'
+name: Generate Certificate
 on:
   workflow_dispatch:
-    inputs:
-      gemini_api_key:
-        description: 'Gemini API Key'
-        required: true
-
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Inject API Key
+      - name: Generate self-signed cert and build
         run: |
-          sed -i '' 's/YOUR_GEMINI_API_KEY/${{ github.event.inputs.gemini_api_key }}/' \
-            samples/CameraAccess/CameraAccess/Gemini/GeminiConfig.swift
-
-      - name: Build with Xcode
-        run: |
+          security create-keychain -p "temp" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "temp" build.keychain
           xcodebuild \
             -project samples/CameraAccess/CameraAccess.xcodeproj \
             -scheme CameraAccess \
             -sdk iphoneos \
-            -configuration Release \
+            -configuration Debug \
+            -derivedDataPath build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
+          mkdir -p output/Payload
+          find build -name "CameraAccess.app" -type d -exec cp -r {} output/Payload/ \;
+          cd output && zip -r VisionClaw.ipa Payload/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VisionClaw
+          path: output/VisionClaw.ipa
