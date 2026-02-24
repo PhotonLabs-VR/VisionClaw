@@ -20,8 +20,14 @@ workflows:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
+          echo "--- Finding .app file ---"
+          find build -name "*.app" -type d
+          APP_PATH=$(find build -name "CameraAccess.app" -type d | head -1)
+          echo "Found app at: $APP_PATH"
           mkdir -p build/ipa/Payload
-          cp -r build/Build/Products/Debug-iphoneos/CameraAccess.app build/ipa/Payload/
+          cp -r "$APP_PATH" build/ipa/Payload/CameraAccess.app
+          ls -la build/ipa/Payload/CameraAccess.app/
           cd build/ipa && zip -r VisionClaw.ipa Payload/
+          echo "IPA created successfully"
     artifacts:
       - build/ipa/VisionClaw.ipa
