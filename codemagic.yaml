@@ -7,36 +7,21 @@ workflows:
       vars:
         XCODE_PROJECT: "samples/CameraAccess/CameraAccess.xcodeproj"
         XCODE_SCHEME: "CameraAccess"
-      groups:
-        - apple_signing
     scripts:
-      - name: Add Apple ID account to Xcode
-        script: |
-          xcrun xcodebuild -scheme "$XCODE_SCHEME" || true
-          defaults write com.apple.dt.Xcode DVTDeveloperAccountManagerLastUsedUserIdentifier "$APPLE_ID"
-          xcrun altool --list-apps \
-            --username "$APPLE_ID" \
-            --password "$APPLE_ID_PASSWORD" || true
-      - name: Build IPA
+      - name: Build unsigned IPA
         script: |
           xcodebuild \
             -project "$XCODE_PROJECT" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphoneos \
             -configuration Debug \
-            -archivePath build/VisionClaw.xcarchive \
-            -allowProvisioningUpdates \
-            -allowProvisioningDeviceRegistration \
-            archive \
-            CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            APPLE_ID="$APPLE_ID" \
-            APPLE_ID_PASSWORD="$APPLE_ID_PASSWORD"
-          xcodebuild \
-            -exportArchive \
-            -archivePath build/VisionClaw.xcarchive \
-            -exportPath build/ipa \
-            -allowProvisioningUpdates \
-            -exportOptionsPlist exportOptions.plist
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+          mkdir -p build/ipa/Payload
+          cp -r build/Build/Products/Debug-iphoneos/CameraAccess.app build/ipa/Payload/
+          cd build/ipa && zip -r VisionClaw.ipa Payload/
     artifacts:
-      - build/ipa/*.ipa
+      - build/ipa/VisionClaw.ipa
