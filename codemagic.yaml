@@ -4,16 +4,13 @@ workflows:
     max_build_duration: 60
     environment:
       xcode: latest
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.photonlabs.VisionClaw
       vars:
         XCODE_PROJECT: "samples/CameraAccess/CameraAccess.xcodeproj"
         XCODE_SCHEME: "CameraAccess"
       groups:
         - apple_signing
     scripts:
-      - name: Build and archive
+      - name: Build IPA
         script: |
           xcodebuild \
             -project "$XCODE_PROJECT" \
@@ -23,11 +20,14 @@ workflows:
             -archivePath build/VisionClaw.xcarchive \
             archive \
             CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Development" \
+            PROVISIONING_PROFILE_SPECIFIER=""
           xcodebuild \
             -exportArchive \
             -archivePath build/VisionClaw.xcarchive \
             -exportPath build/ipa \
+            -allowProvisioningUpdates \
             -exportOptionsPlist exportOptions.plist
     artifacts:
       - build/ipa/*.ipa
