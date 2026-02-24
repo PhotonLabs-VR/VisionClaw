@@ -1,0 +1,31 @@
+name: Build VisionClaw
+
+on:
+  workflow_dispatch:
+    inputs:
+      gemini_api_key:
+        description: 'Gemini API Key'
+        required: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject API Key
+        run: |
+          sed -i '' 's/YOUR_GEMINI_API_KEY/${{ github.event.inputs.gemini_api_key }}/' \
+            samples/CameraAccess/CameraAccess/Gemini/GeminiConfig.swift
+
+      - name: Build with Xcode
+        run: |
+          xcodebuild \
+            -project samples/CameraAccess/CameraAccess.xcodeproj \
+            -scheme CameraAccess \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build

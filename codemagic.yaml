@@ -1,0 +1,32 @@
+cat > codemagic.yaml << 'EOF'
+workflows:
+  ios-development:
+    name: VisionClaw iOS (Development)
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      vars:
+        XCODE_PROJECT: "samples/CameraAccess/CameraAccess.xcodeproj"
+        XCODE_SCHEME: "CameraAccess"
+      groups:
+        - apple_signing
+    scripts:
+      - name: Build iOS app
+        script: |
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -sdk iphoneos \
+            -configuration Debug \
+            -archivePath build/VisionClaw.xcarchive \
+            archive \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/VisionClaw.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist exportOptions.plist
+    artifacts:
+      - build/ipa/*.ipa
+EOF
