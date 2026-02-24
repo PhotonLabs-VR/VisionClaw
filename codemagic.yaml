@@ -15,19 +15,19 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -sdk iphoneos \
             -configuration Debug \
-            -derivedDataPath build \
-            CODE_SIGN_IDENTITY="" \
+            -archivePath build/VisionClaw.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-          echo "--- Finding .app file ---"
-          find build -name "*.app" -type d
-          APP_PATH=$(find build -name "CameraAccess.app" -type d | head -1)
-          echo "Found app at: $APP_PATH"
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_ALLOWED=YES
+          echo "--- Contents of xcarchive ---"
+          find build/VisionClaw.xcarchive -name "*.app" -type d
+          APP_PATH=$(find build/VisionClaw.xcarchive -name "CameraAccess.app" -type d | head -1)
+          echo "App found at: $APP_PATH"
           mkdir -p build/ipa/Payload
           cp -r "$APP_PATH" build/ipa/Payload/CameraAccess.app
-          ls -la build/ipa/Payload/CameraAccess.app/
+          ls build/ipa/Payload/CameraAccess.app/
           cd build/ipa && zip -r VisionClaw.ipa Payload/
-          echo "IPA created successfully"
     artifacts:
       - build/ipa/VisionClaw.ipa
