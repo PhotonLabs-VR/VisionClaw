@@ -10,11 +10,12 @@ workflows:
       groups:
         - apple_signing
     scripts:
-      - name: Sign in to Apple
+      - name: Add Apple ID account to Xcode
         script: |
-          xcrun notarytool store-credentials "AC_PASSWORD" \
-            --apple-id "$APPLE_ID" \
-            --team-id "$APPLE_TEAM_ID" \
+          xcrun xcodebuild -scheme "$XCODE_SCHEME" || true
+          defaults write com.apple.dt.Xcode DVTDeveloperAccountManagerLastUsedUserIdentifier "$APPLE_ID"
+          xcrun altool --list-apps \
+            --username "$APPLE_ID" \
             --password "$APPLE_ID_PASSWORD" || true
       - name: Build IPA
         script: |
@@ -25,10 +26,12 @@ workflows:
             -configuration Debug \
             -archivePath build/VisionClaw.xcarchive \
             -allowProvisioningUpdates \
-            -authenticationKeyID "$APPLE_TEAM_ID" \
+            -allowProvisioningDeviceRegistration \
             archive \
             CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            APPLE_ID="$APPLE_ID" \
+            APPLE_ID_PASSWORD="$APPLE_ID_PASSWORD"
           xcodebuild \
             -exportArchive \
             -archivePath build/VisionClaw.xcarchive \
